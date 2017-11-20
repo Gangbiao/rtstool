@@ -32,32 +32,34 @@ def create(name, config, size, userid, password, iser_enabled,
     ips_allow_fail = ()
 
     try:
-        rtsroot = rtslib_fb.root.RTSRoot()  # 创建RTSRoot()对象，rtstoot
+        rtsroot = rtslib_fb.root.RTSRoot()  # create an object of class RTSRoot: rtstool
     except rtslib_fb.utils.RTSLibError:
         print(_('Ensure that configfs is mounted at /sys/kernel/config.'))
         raise
 
-    # Look to see if BlockStorageObject already exists ，判断BlockStorageObject是否已经存在
+    # Look to see if UserBackedStorageObject already exists
     for x in rtsroot.storage_objects:
         if x.name == name:
             # Already exists, use this one
             return
 
-    # 创建一个新的UserBackedStorageObject对象，so_new
+    # create an object of class UserBackedStorageObject: so_new
     so_new = rtslib_fb.UserBackedStorageObject(name=name, config=config, size=size)
-    # 创建一个target对象，target_new
+    
+	# create an object of class Target: target_new
     target_new = rtslib_fb.Target(rtslib_fb.FabricModule('iscsi'), name,
                                   'create')
-    # 创建tpg对象，tpg_new
+    # create an object of class TPG: tpg_new
     tpg_new = rtslib_fb.TPG(target_new, mode='create')
     tpg_new.set_attribute('authentication', '1')
-    # 创建lun对象，lun_new
+    
+	# create an object of class LUN: lun_new
     lun_new = rtslib_fb.LUN(tpg_new, storage_object=so_new)
 
     if initiator_iqns:
         initiator_iqns = initiator_iqns.strip(' ')  # 移除字符串首尾的空格
         for i in initiator_iqns.split(','):
-            acl_new = rtslib_fb.NodeACL(tpg_new, i, mode='create')  # 根据initiator wwn创建
+            acl_new = rtslib_fb.NodeACL(tpg_new, i, mode='create') 
             acl_new.chap_userid = userid
             acl_new.chap_password = password
 
@@ -66,7 +68,6 @@ def create(name, config, size, userid, password, iser_enabled,
     tpg_new.enable = 1
 
     # If no ips are given we'll bind to all IPv4 and v6
-    # 如果不指定IP地址，默认允许所有ipv4和ipv6地址访问
     if not portals_ips:
         portals_ips = ('0.0.0.0', '[::0]')
         # TODO(emh): Binding to IPv6 fails sometimes -- let pass for now.
@@ -260,18 +261,18 @@ def main(argv=None):
         if len(argv) < 8:
             usage()
 
-        if len(argv) > 11:  # 待确认各个参数的详细含义
+        if len(argv) > 11:
             usage()
 
         name = argv[2]
         config = argv[3]
-        size = int(argv[4], 10)  # argv[4]
+        size = int(argv[4], 10)  # convert argv[4] to int
         userid = argv[5]
         password = argv[6]
         iser_enabled = argv[7]
 
         if len(argv) > 8:
-            optional_args = parse_optional_create(argv[8:])  # 后面的参数为iqns
+            optional_args = parse_optional_create(argv[8:])
         else:
             optional_args = {}
 
