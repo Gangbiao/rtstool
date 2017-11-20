@@ -43,8 +43,7 @@ def create(name, config, size, userid, password, iser_enabled,
             # Already exists, use this one
             return
 
-    # 创建一个新的BlockStorageObject对象，so_new
-    # so_new = rtslib_fb.BlockStorageObject(name=name, dev=backing_device)
+    # 创建一个新的UserBackedStorageObject对象，so_new
     so_new = rtslib_fb.UserBackedStorageObject(name=name, config=config, size=size)
     # 创建一个target对象，target_new
     target_new = rtslib_fb.Target(rtslib_fb.FabricModule('iscsi'), name,
