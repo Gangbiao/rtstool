@@ -100,7 +100,7 @@ def create_base_user_backstores(name, config, size, userid, password, iser_enabl
     This function allow you to create a target base an userspace backstores,
     for example, user:rbd, user:glfs, user:qcow etc.
     you should install and run tcmu-runner first, 
-	see more information: https://github.com/open-iscsi/tcmu-runner
+    see more information: https://github.com/open-iscsi/tcmu-runner
     '''
     
     # List of IPS that will not raise an error when they fail binding.
@@ -122,13 +122,13 @@ def create_base_user_backstores(name, config, size, userid, password, iser_enabl
     # create an object of class UserBackedStorageObject: so_new
     so_new = rtslib_fb.UserBackedStorageObject(name=name, config=config, size=size)
     
-	# create an object of class Target: target_new
+    # create an object of class Target: target_new
     target_new = rtslib_fb.Target(rtslib_fb.FabricModule('iscsi'), name, 'create')
     # create an object of class TPG: tpg_new
     tpg_new = rtslib_fb.TPG(target_new, mode='create')
     tpg_new.set_attribute('authentication', '1')
     
-	# create an object of class LUN: lun_new
+    # create an object of class LUN: lun_new
     lun_new = rtslib_fb.LUN(tpg_new, storage_object=so_new)
 
     if initiator_iqns:
