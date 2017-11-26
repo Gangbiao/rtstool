@@ -16,14 +16,11 @@ from cinder.i18n import _
 
 i18n.enable_lazy()
 
-
 class RtstoolError(Exception):
     pass
 
-
 class RtstoolImportError(RtstoolError):
     pass
-
 
 def create(backing_device, name, userid, password, iser_enabled,
            initiator_iqns=None, portals_ips=None, portals_port=3260):
@@ -93,7 +90,7 @@ def create(backing_device, name, userid, password, iser_enabled,
                         'that RDMA is supported on your iSCSI port %(port)d '
                         'on ip %(ip)s.') % {'port': portals_port, 'ip': ip})
                 raise
-	
+
 def create_base_user_backstores(name, config, size, userid, password, iser_enabled,
            initiator_iqns=None, portals_ips=None, portals_port=3260):
     '''
@@ -171,7 +168,6 @@ def create_base_user_backstores(name, config, size, userid, password, iser_enabl
                         'on ip %(ip)s.') % {'port': portals_port, 'ip': ip})
                 raise
 
-
 def _lookup_target(target_iqn, initiator_iqn):
     try:
         rtsroot = rtslib_fb.root.RTSRoot()
@@ -184,7 +180,6 @@ def _lookup_target(target_iqn, initiator_iqn):
         if t.wwn == target_iqn:
             return t
     raise RtstoolError(_('Could not find target %s') % target_iqn)
-
 
 def add_initiator(target_iqn, initiator_iqn, userid, password):
     target = _lookup_target(target_iqn, initiator_iqn)
@@ -201,7 +196,6 @@ def add_initiator(target_iqn, initiator_iqn, userid, password):
 
     rtslib_fb.MappedLUN(acl_new, 0, tpg_lun=0)
 
-
 def delete_initiator(target_iqn, initiator_iqn):
     target = _lookup_target(target_iqn, initiator_iqn)
     tpg = next(target.tpgs)  # get the first one
@@ -213,12 +207,10 @@ def delete_initiator(target_iqn, initiator_iqn):
     print(_('delete_initiator: %s ACL not found. Continuing.') % initiator_iqn)
     # Return successfully.
 
-
 def get_targets():
     rtsroot = rtslib_fb.root.RTSRoot()
     for x in rtsroot.targets:
         print(x.wwn)
-
 
 def delete(iqn):
     rtsroot = rtslib_fb.root.RTSRoot()
@@ -232,14 +224,12 @@ def delete(iqn):
             x.delete()
             break
 
-
 def verify_rtslib():
     for member in ['BlockStorageObject', 'UserBackedStorageObject', 'FabricModule', 'LUN',
                    'MappedLUN', 'NetworkPortal', 'NodeACL', 'root', 'Target', 'TPG']:
         if not hasattr(rtslib_fb, member):
             raise RtstoolImportError(_("rtslib_fb is missing member %s: You "
                                        "may need a newer python-rtslib-fb.") % member)
-
 
 def usage():
     print("Usage:")
@@ -258,7 +248,6 @@ def usage():
     print(sys.argv[0] + " verify")
     print(sys.argv[0] + " save [path_to_file]")
     sys.exit(1)
-
 
 def save_to_file(destination_file):
     rtsroot = rtslib_fb.root.RTSRoot()
@@ -288,7 +277,6 @@ def save_to_file(destination_file):
                              '%(exc)s') %
                            {'file_path': destination_file, 'exc': exc})
 
-
 def restore_from_file(configration_file):
     rtsroot = rtslib_fb.root.RTSRoot()
     # If configuration file is None, use rtslib default save file.
@@ -301,7 +289,6 @@ def restore_from_file(configration_file):
         raise RtstoolError(_('Could not restore configuration file '
                              '%(file_path)s: %(exc)s'),
                            {'file_path': configration_file, 'exc': exc})
-
 
 def parse_optional_create(argv):
     optional_args = {}
@@ -321,12 +308,10 @@ def parse_optional_create(argv):
             optional_args['initiator_iqns'] = arg
     return optional_args
 
-
 def _canonicalize_ip(ip):
     if ip.startswith('[') or "." in ip:
         return ip
     return "[" + ip + "]"
-
 
 def main(argv=None):
     if argv is None:
@@ -434,7 +419,6 @@ def main(argv=None):
         usage()
 
     return 0
-
 
 if __name__ == '__main__':
     sys.exit(main())
