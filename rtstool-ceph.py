@@ -96,6 +96,12 @@ def create(backing_device, name, userid, password, iser_enabled,
 	
 def create_base_user_backstores(name, config, size, userid, password, iser_enabled,
            initiator_iqns=None, portals_ips=None, portals_port=3260):
+    '''
+    This function allow you to create a target base an userspace backstores,
+    for example, user:rbd, user:glfs, user:qcow etc.
+    you should install and run tcmu-runner first, see more information: https://github.com/open-iscsi/tcmu-runner
+    '''
+    
     # List of IPS that will not raise an error when they fail binding.
     # Originally we will fail on all binding errors.
     ips_allow_fail = ()
