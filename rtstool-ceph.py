@@ -99,7 +99,8 @@ def create_base_user_backstores(name, config, size, userid, password, iser_enabl
     '''
     This function allow you to create a target base an userspace backstores,
     for example, user:rbd, user:glfs, user:qcow etc.
-    you should install and run tcmu-runner first, see more information: https://github.com/open-iscsi/tcmu-runner
+    you should install and run tcmu-runner first, 
+	see more information: https://github.com/open-iscsi/tcmu-runner
     '''
     
     # List of IPS that will not raise an error when they fail binding.
@@ -131,7 +132,7 @@ def create_base_user_backstores(name, config, size, userid, password, iser_enabl
     lun_new = rtslib_fb.LUN(tpg_new, storage_object=so_new)
 
     if initiator_iqns:
-        initiator_iqns = initiator_iqns.strip(' ')  # 移除字符串首尾的空格
+        initiator_iqns = initiator_iqns.strip(' ')
         for i in initiator_iqns.split(','):
             acl_new = rtslib_fb.NodeACL(tpg_new, i, mode='create') 
             acl_new.chap_userid = userid
@@ -321,7 +322,7 @@ def parse_optional_create(argv):
     return optional_args
 
 
-def _canonicalize_ip(ip):  # IP地址规范化，
+def _canonicalize_ip(ip):
     if ip.startswith('[') or "." in ip:
         return ip
     return "[" + ip + "]"
