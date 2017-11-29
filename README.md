@@ -4,7 +4,15 @@
 ## 使用举例
 * 创建target,用法如下：
 ```
+[root@tcmu-runner-node rtstool-ceph]# ./rtstool-ceph.py 
+Usage:
 ./rtstool-ceph.py create [name] [config] [size] [userid] [password] [iser_enabled] <initiator_iqn,iqn2,iqn3,...> [-a<IP1,IP2,...>] [-pPORT]
+./rtstool-ceph.py add-initiator [target_iqn] [userid] [password] [initiator_iqn]
+./rtstool-ceph.py delete-initiator [target_iqn] [initiator_iqn]
+./rtstool-ceph.py get-targets
+./rtstool-ceph.py delete [iqn]
+./rtstool-ceph.py verify
+./rtstool-ceph.py save [path_to_file]
 ```
 * create命令使用举例
 ```
