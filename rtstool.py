@@ -15,11 +15,14 @@ from cinder.i18n import _
 
 i18n.enable_lazy()
 
+
 class RtstoolError(Exception):
     pass
 
+
 class RtstoolImportError(RtstoolError):
     pass
+
 
 def create(backing_device, name, userid, password, iser_enabled,
            initiator_iqns=None, portals_ips=None, portals_port=3260):
@@ -76,7 +79,7 @@ def create(backing_device, name, userid, password, iser_enabled,
             raise_exc = ip not in ips_allow_fail
             msg_type = 'Error' if raise_exc else 'Warning'
             print(_('%(msg_type)s: creating NetworkPortal: ensure port '
-                  '%(port)d on ip %(ip)s is not in use by another service.')
+                    '%(port)d on ip %(ip)s is not in use by another service.')
                   % {'msg_type': msg_type, 'port': portals_port, 'ip': ip})
             if raise_exc:
                 raise
@@ -90,21 +93,24 @@ def create(backing_device, name, userid, password, iser_enabled,
                         'on ip %(ip)s.') % {'port': portals_port, 'ip': ip})
                 raise
 
-def create_base_user_backstores(name, config, size, userid, password, iser_enabled,
-           initiator_iqns=None, portals_ips=None, portals_port=3260):
+
+def create_base_user_backstores(
+        name, config, size, userid,
+        password, iser_enabled, initiator_iqns=None,
+        portals_ips=None, portals_port=3260):
     '''
     This function allow you to create a target base an userspace backstores,
     for example, user:rbd, user:glfs, user:qcow etc.
-    you should install and run tcmu-runner first, 
+    you should install and run tcmu-runner first,
     see more information: https://github.com/open-iscsi/tcmu-runner
     '''
-    
+
     # List of IPS that will not raise an error when they fail binding.
     # Originally we will fail on all binding errors.
     ips_allow_fail = ()
 
     try:
-        rtsroot = rtslib_fb.root.RTSRoot()  # create an object of class RTSRoot: rtstool
+        rtsroot = rtslib_fb.root.RTSRoot()
     except rtslib_fb.utils.RTSLibError:
         print(_('Ensure that configfs is mounted at /sys/kernel/config.'))
         raise
@@ -116,21 +122,23 @@ def create_base_user_backstores(name, config, size, userid, password, iser_enabl
             return
 
     # create an object of class UserBackedStorageObject: so_new
-    so_new = rtslib_fb.UserBackedStorageObject(name=name, config=config, size=size)
-    
+    so_new = rtslib_fb.UserBackedStorageObject(name=name,
+                                               config=config, size=size)
+
     # create an object of class Target: target_new
-    target_new = rtslib_fb.Target(rtslib_fb.FabricModule('iscsi'), name, 'create')
+    target_new = rtslib_fb.Target(rtslib_fb.FabricModule('iscsi'),
+                                  name, 'create')
     # create an object of class TPG: tpg_new
     tpg_new = rtslib_fb.TPG(target_new, mode='create')
     tpg_new.set_attribute('authentication', '1')
-    
+
     # create an object of class LUN: lun_new
     lun_new = rtslib_fb.LUN(tpg_new, storage_object=so_new)
 
     if initiator_iqns:
         initiator_iqns = initiator_iqns.strip(' ')
         for i in initiator_iqns.split(','):
-            acl_new = rtslib_fb.NodeACL(tpg_new, i, mode='create') 
+            acl_new = rtslib_fb.NodeACL(tpg_new, i, mode='create')
             acl_new.chap_userid = userid
             acl_new.chap_password = password
 
@@ -167,6 +175,7 @@ def create_base_user_backstores(name, config, size, userid, password, iser_enabl
                         'on ip %(ip)s.') % {'port': portals_port, 'ip': ip})
                 raise
 
+
 def _lookup_target(target_iqn, initiator_iqn):
     try:
         rtsroot = rtslib_fb.root.RTSRoot()
@@ -179,6 +188,7 @@ def _lookup_target(target_iqn, initiator_iqn):
         if t.wwn == target_iqn:
             return t
     raise RtstoolError(_('Could not find target %s') % target_iqn)
+
 
 def add_initiator(target_iqn, initiator_iqn, userid, password):
     target = _lookup_target(target_iqn, initiator_iqn)
@@ -195,6 +205,7 @@ def add_initiator(target_iqn, initiator_iqn, userid, password):
 
     rtslib_fb.MappedLUN(acl_new, 0, tpg_lun=0)
 
+
 def delete_initiator(target_iqn, initiator_iqn):
     target = _lookup_target(target_iqn, initiator_iqn)
     tpg = next(target.tpgs)  # get the first one
@@ -206,10 +217,12 @@ def delete_initiator(target_iqn, initiator_iqn):
     print(_('delete_initiator: %s ACL not found. Continuing.') % initiator_iqn)
     # Return successfully.
 
+
 def get_targets():
     rtsroot = rtslib_fb.root.RTSRoot()
     for x in rtsroot.targets:
         print(x.wwn)
+
 
 def delete(iqn):
     rtsroot = rtslib_fb.root.RTSRoot()
@@ -223,12 +236,16 @@ def delete(iqn):
             x.delete()
             break
 
+
 def verify_rtslib():
-    for member in ['BlockStorageObject', 'UserBackedStorageObject', 'FabricModule', 'LUN',
-                   'MappedLUN', 'NetworkPortal', 'NodeACL', 'root', 'Target', 'TPG']:
+    for member in ['BlockStorageObject', 'UserBackedStorageObject',
+                   'FabricModule', 'LUN', 'MappedLUN', 'NetworkPortal',
+                   'NodeACL', 'root', 'Target', 'TPG']:
         if not hasattr(rtslib_fb, member):
             raise RtstoolImportError(_("rtslib_fb is missing member %s: You "
-                                       "may need a newer python-rtslib-fb.") % member)
+                                       "may need a newer python-rtslib-fb.")
+                                     % member)
+
 
 def usage():
     print("Usage:")
@@ -236,7 +253,8 @@ def usage():
           " create [device] [name] [userid] [password] [iser_enabled]" +
           " <initiator_iqn,iqn2,iqn3,...> [-a<IP1,IP2,...>] [-pPORT]")
     print(sys.argv[0] +
-          " create_base_user_backstores [name] [config] [size] [userid] [password] [iser_enabled]" +
+          " create_base_user_backstores [name] [config] [size] [userid] \
+          [password] [iser_enabled]" +
           " <initiator_iqn,iqn2,iqn3,...> [-a<IP1,IP2,...>] [-pPORT]")
     print(sys.argv[0] +
           " add-initiator [target_iqn] [userid] [password] [initiator_iqn]")
@@ -247,6 +265,7 @@ def usage():
     print(sys.argv[0] + " verify")
     print(sys.argv[0] + " save [path_to_file]")
     sys.exit(1)
+
 
 def save_to_file(destination_file):
     rtsroot = rtslib_fb.root.RTSRoot()
@@ -276,6 +295,7 @@ def save_to_file(destination_file):
                              '%(exc)s') %
                            {'file_path': destination_file, 'exc': exc})
 
+
 def restore_from_file(configration_file):
     rtsroot = rtslib_fb.root.RTSRoot()
     # If configuration file is None, use rtslib default save file.
@@ -288,6 +308,7 @@ def restore_from_file(configration_file):
         raise RtstoolError(_('Could not restore configuration file '
                              '%(file_path)s: %(exc)s'),
                            {'file_path': configration_file, 'exc': exc})
+
 
 def parse_optional_create(argv):
     optional_args = {}
@@ -307,10 +328,12 @@ def parse_optional_create(argv):
             optional_args['initiator_iqns'] = arg
     return optional_args
 
+
 def _canonicalize_ip(ip):
     if ip.startswith('[') or "." in ip:
         return ip
     return "[" + ip + "]"
+
 
 def main(argv=None):
     if argv is None:
@@ -339,7 +362,7 @@ def main(argv=None):
 
         create(backing_device, name, userid, password, iser_enabled,
                **optional_args)
-	
+
     elif argv[1] == 'create_base_user_backstores':
         if len(argv) < 8:
             usage()
@@ -359,8 +382,9 @@ def main(argv=None):
         else:
             optional_args = {}
 
-        create_base_user_backstores(name, config, size, userid, password, iser_enabled,
-               **optional_args)
+        create_base_user_backstores(name, config, size, userid,
+                                    password, iser_enabled,
+                                    **optional_args)
 
     elif argv[1] == 'add-initiator':
         if len(argv) < 6:
@@ -418,6 +442,7 @@ def main(argv=None):
         usage()
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
